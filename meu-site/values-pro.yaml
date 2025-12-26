@@ -25,7 +25,7 @@ deployments:
     replicas: 1
     image:
       repository: meu-site-backend
-      tag: v0.0.4
+      tag: v0.0.5
     envFromSecret: meu-site-database-credentials
     envKeys:
       - MONGODB_URI
