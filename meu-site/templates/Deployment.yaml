@@ -1,0 +1,89 @@
+{{- range $key, $val := .Values.deployments }}
+{{- if $val.name }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Nome limpo baseado no values.yaml
+  name: {{ $val.name | quote }}
+  labels:
+    {{- include "app.labels" (dict "name" $val.name "Values" $.Values "Release" $.Release) | nindent 4 }}
+spec:
+  {{- /* Verificação segura de persistência */ -}}
+  {{- $persistenceEnabled := false -}}
+  {{- if $val.persistence -}}
+    {{- if $val.persistence.enabled -}}
+      {{- $persistenceEnabled = true -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- /* Conversão de tipos para evitar erro de 'interface {}' no 'contains' */ -}}
+  {{- $currentName := printf "%s" $val.name -}}
+
+  {{- /* Bancos de dados ou Apps com volume precisam de Recreate para não travar o PVC */ -}}
+  {{- if or (contains "database" $currentName) $persistenceEnabled }}
+  strategy:
+    type: Recreate
+  {{- else }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  {{- end }}
+
+  replicas: {{ $val.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ $val.name | quote }}
+  template:
+    metadata:
+      labels:
+        app: {{ $val.name | quote }}
+    spec:
+      containers:
+        - name: {{ $val.name | quote }}
+          {{- $repo := printf "%s" $val.image.repository -}}
+          {{- /* Lógica dinâmica: se tiver '/' usa repo completo, senão monta com as globais */ -}}
+          {{- if contains "/" $repo }}
+          image: "{{ $repo }}:{{ $val.image.tag | default "latest" }}"
+          {{- else }}
+          image: "{{ $.Values.global.registry }}/{{ $.Values.global.project }}/{{ $repo }}:{{ $val.image.tag | default "latest" }}"
+          {{- end }}
+          
+          imagePullPolicy: {{ $.Values.global.pullPolicy | default "Always" }}
+
+          {{- if $val.args }}
+          args: {{ toYaml $val.args | nindent 12 }}
+          {{- end }}
+
+          ports:
+            {{- include "app.containerPorts" $val | nindent 12 }}
+
+          {{- if $val.envFromSecret }}
+          env:
+            {{- range $val.envKeys }}
+            - name: {{ . | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $val.envFromSecret | quote }}
+                  key: {{ . | quote }}
+            {{- end }}
+          {{- end }}
+
+          {{- if $persistenceEnabled }}
+          volumeMounts:
+            - name: storage
+              mountPath: {{ $val.persistence.mountPath | quote }}
+          {{- end }}
+
+          {{- include "app.resources" $val | nindent 10 }}
+
+      {{- if $persistenceEnabled }}
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: {{ $val.persistence.pvcName | quote }}
+      {{- end }}
+---
+{{- end }}
+{{- end }}

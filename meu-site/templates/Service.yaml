@@ -1,0 +1,22 @@
+{{- range $key, $val := .Values.services }}
+apiVersion: v1
+kind: Service
+metadata:
+  # Use o nome direto do values para bater com o Deployment e o Ingress
+  name: {{ $val.name | quote }} 
+  labels:
+    {{- include "app.labels" (dict "name" $val.name "Values" $.Values "Release" $.Release) | nindent 4 }}
+spec:
+  type: {{ $val.type | default "ClusterIP" }}
+  selector:
+    # O seletor deve ser exatamente igual ao label 'app' do Pod
+    app: {{ $val.name | quote }}
+  ports:
+    {{- range $port := $val.ports }}
+    - port: {{ .port }}
+      targetPort: {{ .targetPort | default .port }}
+      protocol: {{ .protocol | default "TCP" }}
+      name: {{ .name | default (printf "port-%d" (int .port)) }}
+    {{- end }}
+---
+{{- end }}

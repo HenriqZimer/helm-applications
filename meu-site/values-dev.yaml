@@ -1,0 +1,113 @@
+# Configurações Globais
+global:
+  registry: harbor.henriqzimer.com.br
+  project: meu-site
+  pullPolicy: Always
+# Rótulos comuns aplicados a todos os recursos
+commonLabels:
+  managed-by: helm
+  project: meu-site
+# Mapa dinâmico de deployments
+deployments:
+  frontend:
+    name: meu-site-frontend
+    replicas: 2
+    image:
+      repository: meu-site-frontend
+      tag: dev-9a856530f0
+    resources:
+      requests: {cpu: 300m, memory: 512Mi}
+      limits: {cpu: 500m, memory: 1Gi}
+    ports:
+      - containerPort: 3000
+  backend:
+    name: meu-site-backend
+    replicas: 1
+    image:
+      repository: meu-site-backend
+      tag: dev-897df93656
+    envFromSecret: meu-site-database-credentials
+    envKeys:
+      - MONGODB_URI
+    resources:
+      requests: {cpu: 150m, memory: 128Mi}
+      limits: {cpu: 300m, memory: 256Mi}
+    ports:
+      - containerPort: 5000
+  database:
+    name: meu-site-database
+    replicas: 1
+    image:
+      repository: docker.io/mongo
+      tag: latest
+    args: ["--bind_ip", "0.0.0.0"]
+    envFromSecret: meu-site-database-credentials
+    envKeys:
+      - MONGO_INITDB_ROOT_USERNAME
+      - MONGO_INITDB_ROOT_PASSWORD
+      - MONGO_INITDB_DATABASE
+    persistence:
+      enabled: false
+      mountPath: /data/db
+      pvcName: meu-site-database-pvc
+    resources:
+      requests: {cpu: 200m, memory: 256Mi}
+      limits: {cpu: 500m, memory: 512Mi}
+    ports:
+      - containerPort: 27017
+# Configuração de Serviços
+services:
+  frontend:
+    name: meu-site-frontend
+    ports:
+      - port: 3000
+  backend:
+    name: meu-site-backend
+    ports:
+      - port: 5000
+  database:
+    name: meu-site-database
+    ports:
+      - port: 27017
+# Configuração de Ingress
+ingress:
+  meu-site-principal:
+    enabled: true
+    name: meu-site-ingress
+    className: nginx
+    serviceName: meu-site-frontend
+    tlsSecret: wildcard-henriqzimer-tls
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/enable-cors: "true"
+      nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+      nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+      nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    hosts:
+      - host: dev.henriqzimer.com.br
+        paths:
+          - path: /favicon.ico
+            pathType: Exact
+            port: 3000
+            serviceName: meu-site-frontend
+          - path: /api/_nuxt_icon
+            pathType: Prefix
+            port: 3000
+            serviceName: meu-site-frontend
+          - path: /
+            port: 3000
+            pathType: Prefix
+          - path: /api
+            port: 5000
+            pathType: Prefix
+            serviceName: meu-site-backend
+# Configuração de Secrets (para testes locais/sem Vault)
+secrets:
+  enabled: true
+  name: meu-site-database-credentials
+  data:
+    MONGO_INITDB_ROOT_USERNAME: "admin"
+    MONGO_INITDB_ROOT_PASSWORD: "password123"
+    MONGO_INITDB_DATABASE: "meu_site_db"
+    MONGODB_URI: "mongodb://admin:password123@meu-site-database:27017/meu_site_db?authSource=admin"
