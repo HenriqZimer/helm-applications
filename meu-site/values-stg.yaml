@@ -14,7 +14,7 @@ deployments:
     replicas: 2
     image:
       repository: meu-site-frontend
-      tag: v0.0.4-9a856530f0
+      tag: v0.0.5-9a856530f0
     resources:
       requests: {cpu: 300m, memory: 512Mi}
       limits: {cpu: 500m, memory: 1Gi}
