@@ -1,0 +1,69 @@
+{{- if .Values.mariadb.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "romm.fullname" . }}-db
+  labels:
+    {{- include "romm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mariadb
+spec:
+  replicas: 1
+  {{- if .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "romm.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: mariadb
+  template:
+    metadata:
+      labels:
+        {{- include "romm.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: mariadb
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: mariadb
+          image: "{{ .Values.mariadb.image.repository }}:{{ .Values.mariadb.image.tag }}"
+          imagePullPolicy: {{ .Values.mariadb.image.pullPolicy }}
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+          env:
+            {{- range $key, $val := .Values.secrets.data }}
+            {{- if hasPrefix "MYSQL_" $key }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secrets.name }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+          {{- with .Values.mariadb.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: data
+          {{- if .Values.mariadb.persistence.enabled }}
+          {{- if eq .Values.mariadb.persistence.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.mariadb.persistence.existingClaim | default (printf "%s-db" (include "romm.fullname" .)) }}
+          {{- else if eq .Values.mariadb.persistence.type "hostPath" }}
+          hostPath:
+            path: {{ .Values.mariadb.persistence.hostPath }}
+            type: DirectoryOrCreate
+          {{- end }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+{{- end }}

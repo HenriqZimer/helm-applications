@@ -3,7 +3,7 @@ entries:
   meu-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-12-26T04:29:29.369213317Z"
+    created: "2026-01-12T22:13:55.807158015Z"
     description: A Helm chart for Kubernetes
     digest: 95dc435e0f9acaf5b7a60481270b4bac28ab52f31ac1ded76aa4cb604a54504d
     icon: https://example.com/icon.png
@@ -12,4 +12,26 @@ entries:
     urls:
     - https://henriqzimer.github.io/helm-applications/meu-site-1.0.0.tgz
     version: 1.0.0
-generated: "2025-12-26T04:29:29.367572366Z"
+  romm:
+  - apiVersion: v2
+    appVersion: 4.5.0
+    created: "2026-01-12T22:13:55.808407754Z"
+    description: A Helm chart for RomM - Beautiful, powerful, self-hosted ROM manager
+    digest: 9d60242f980bfcbe3df59f0ccf8072f53409a02849ab49e98324acf052df740c
+    home: https://romm.app/
+    icon: https://romm.app/images/blocks/logos/romm-light.svg
+    keywords:
+    - romm
+    - emulation
+    - retrogaming
+    - rom-manager
+    maintainers:
+    - name: henriqzimer
+    name: romm
+    sources:
+    - https://github.com/rommapp/romm
+    type: application
+    urls:
+    - https://henriqzimer.github.io/helm-applications/romm-1.0.0.tgz
+    version: 1.0.0
+generated: "2026-01-12T22:13:55.803965005Z"

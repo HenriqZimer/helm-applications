@@ -1,0 +1,165 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "romm.fullname" . }}
+  labels:
+    {{- include "romm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: romm
+spec:
+  replicas: {{ .Values.replicaCount }}
+  {{- if .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      {{- include "romm.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: romm
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "romm.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: romm
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      enableServiceLinks: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: romm
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: DB_HOST
+            {{- range $key, $val := .Values.secrets.data }}
+            {{- if not (hasPrefix "MYSQL_" $key) }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secrets.name }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.romm.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.romm.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /romm/config
+            - name: library
+              mountPath: /romm/library
+            - name: resources
+              mountPath: /romm/resources
+            - name: assets
+              mountPath: /romm/assets
+            {{- if .Values.rommConfig.enabled }}
+            - name: romm-config-file
+              mountPath: /romm/config/config.yml
+              subPath: config.yml
+            {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: config
+          {{- if .Values.persistence.config.enabled }}
+          {{- if eq .Values.persistence.config.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.config.existingClaim | default (printf "%s-config" (include "romm.fullname" .)) }}
+          {{- else if eq .Values.persistence.config.type "hostPath" }}
+          hostPath:
+            path: {{ .Values.persistence.config.hostPath }}
+            type: DirectoryOrCreate
+          {{- end }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: library
+          {{- if .Values.persistence.library.enabled }}
+          {{- if eq .Values.persistence.library.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.library.existingClaim | default (printf "%s-library" (include "romm.fullname" .)) }}
+          {{- else if eq .Values.persistence.library.type "hostPath" }}
+          hostPath:
+            path: {{ .Values.persistence.library.hostPath }}
+            type: DirectoryOrCreate
+          {{- end }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: resources
+          {{- if .Values.persistence.resources.enabled }}
+          {{- if eq .Values.persistence.resources.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.resources.existingClaim | default (printf "%s-resources" (include "romm.fullname" .)) }}
+          {{- else if eq .Values.persistence.resources.type "hostPath" }}
+          hostPath:
+            path: {{ .Values.persistence.resources.hostPath }}
+            type: DirectoryOrCreate
+          {{- end }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: assets
+          {{- if .Values.persistence.assets.enabled }}
+          {{- if eq .Values.persistence.assets.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.assets.existingClaim | default (printf "%s-assets" (include "romm.fullname" .)) }}
+          {{- else if eq .Values.persistence.assets.type "hostPath" }}
+          hostPath:
+            path: {{ .Values.persistence.assets.hostPath }}
+            type: DirectoryOrCreate
+          {{- end }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- if .Values.rommConfig.enabled }}
+        - name: romm-config-file
+          configMap:
+            name: {{ .Values.rommConfig.name | default "romm-config-file" }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

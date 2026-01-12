@@ -1,0 +1,114 @@
+{{- if and .Values.persistence.config.enabled (eq .Values.persistence.config.type "pvc") (not .Values.persistence.config.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "romm.fullname" . }}-config
+  labels:
+    {{- include "romm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: romm
+  {{- with .Values.persistence.config.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.config.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.config.size }}
+  {{- if .Values.persistence.config.storageClass }}
+  storageClassName: {{ .Values.persistence.config.storageClass }}
+  {{- end }}
+---
+{{- end }}
+{{- if and .Values.persistence.library.enabled (eq .Values.persistence.library.type "pvc") (not .Values.persistence.library.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "romm.fullname" . }}-library
+  labels:
+    {{- include "romm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: romm
+  {{- with .Values.persistence.library.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.library.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.library.size }}
+  {{- if .Values.persistence.library.storageClass }}
+  storageClassName: {{ .Values.persistence.library.storageClass }}
+  {{- end }}
+---
+{{- end }}
+{{- if and .Values.persistence.resources.enabled (eq .Values.persistence.resources.type "pvc") (not .Values.persistence.resources.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "romm.fullname" . }}-resources
+  labels:
+    {{- include "romm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: romm
+  {{- with .Values.persistence.resources.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.resources.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.resources.size }}
+  {{- if .Values.persistence.resources.storageClass }}
+  storageClassName: {{ .Values.persistence.resources.storageClass }}
+  {{- end }}
+---
+{{- end }}
+{{- if and .Values.persistence.assets.enabled (eq .Values.persistence.assets.type "pvc") (not .Values.persistence.assets.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "romm.fullname" . }}-assets
+  labels:
+    {{- include "romm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: romm
+  {{- with .Values.persistence.assets.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.assets.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.assets.size }}
+  {{- if .Values.persistence.assets.storageClass }}
+  storageClassName: {{ .Values.persistence.assets.storageClass }}
+  {{- end }}
+---
+{{- end }}
+{{- if and .Values.mariadb.enabled .Values.mariadb.persistence.enabled (eq .Values.mariadb.persistence.type "pvc") (not .Values.mariadb.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "romm.fullname" . }}-db
+  labels:
+    {{- include "romm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: mariadb
+  {{- with .Values.mariadb.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.mariadb.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.mariadb.persistence.size }}
+  {{- if .Values.mariadb.persistence.storageClass }}
+  storageClassName: {{ .Values.mariadb.persistence.storageClass }}
+  {{- end }}
+{{- end }}
