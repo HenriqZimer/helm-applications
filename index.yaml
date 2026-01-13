@@ -3,7 +3,7 @@ entries:
   meu-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-01-13T14:59:54.017038076Z"
+    created: "2026-01-13T15:17:54.354244359Z"
     description: A Helm chart for Meu Site - Personal website application
     digest: ae4d3a3dec6e6c3ca968ad1306c819091fae4823b7ab09897ddc9a53c4b8b697
     home: https://github.com/HenriqZimer/k8s
@@ -23,7 +23,7 @@ entries:
     version: 1.0.4
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-01-13T14:59:54.015992853Z"
+    created: "2026-01-13T15:17:54.353282403Z"
     description: A Helm chart for Meu Site - Personal website application
     digest: 8e0c0b164e29253b24638badb584c92cdc8eaa4526a0e1e8653339e0c76b452c
     home: https://github.com/HenriqZimer/k8s
@@ -43,7 +43,7 @@ entries:
     version: 1.0.3
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-01-13T14:59:54.014912986Z"
+    created: "2026-01-13T15:17:54.352337241Z"
     description: A Helm chart for Meu Site - Personal website application
     digest: 2cd341396ac79e9760d00cb03230c51cca01714c852c79786d57413674a12d72
     home: https://github.com/HenriqZimer/k8s
@@ -63,7 +63,7 @@ entries:
     version: 1.0.2
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-01-13T14:59:54.01395308Z"
+    created: "2026-01-13T15:17:54.351418013Z"
     description: A Helm chart for Meu Site - Personal website application
     digest: 579af3f11a0eee85138914dd1ec0bee3525f8e6f808f24c41ca4bbc99adccdac
     home: https://github.com/HenriqZimer/k8s
@@ -83,7 +83,7 @@ entries:
     version: 1.0.1
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-01-13T14:59:54.012949282Z"
+    created: "2026-01-13T15:17:54.35054315Z"
     description: A Helm chart for Kubernetes
     digest: 95dc435e0f9acaf5b7a60481270b4bac28ab52f31ac1ded76aa4cb604a54504d
     icon: https://example.com/icon.png
@@ -95,7 +95,28 @@ entries:
   romm:
   - apiVersion: v2
     appVersion: 4.5.0
-    created: "2026-01-13T14:59:54.018210711Z"
+    created: "2026-01-13T15:17:54.356505001Z"
+    description: A Helm chart for RomM - Beautiful, powerful, self-hosted ROM manager
+    digest: 8428bf2a09f1cf54080d9368d70c3801c03eb07140b36eff57a45fe21e2311f4
+    home: https://romm.app/
+    icon: https://romm.app/images/blocks/logos/romm-light.svg
+    keywords:
+    - romm
+    - emulation
+    - retrogaming
+    - rom-manager
+    maintainers:
+    - name: henriqzimer
+    name: romm
+    sources:
+    - https://github.com/rommapp/romm
+    type: application
+    urls:
+    - romm-1.0.2.tgz
+    version: 1.0.2
+  - apiVersion: v2
+    appVersion: 4.5.0
+    created: "2026-01-13T15:17:54.355462311Z"
     description: A Helm chart for RomM - Beautiful, powerful, self-hosted ROM manager
     digest: 1df09d49b54fa48f43f00ef90539c5fbe8be8f9b49e005a9733e9f08f0ac14a9
     home: https://romm.app/
@@ -114,4 +135,4 @@ entries:
     urls:
     - romm-1.0.1.tgz
     version: 1.0.1
-generated: "2026-01-13T14:59:54.01140019Z"
+generated: "2026-01-13T15:17:54.348890563Z"
