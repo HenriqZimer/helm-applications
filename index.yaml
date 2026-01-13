@@ -18,8 +18,6 @@ entries:
     sources:
     - https://github.com/HenriqZimer/k8s
     type: application
-    urls:
-    - https://raw.githubusercontent.com/HenriqZimer/helm-applications/main/meu-site-1.0.0.tgz
     version: 1.0.0
   romm:
   - apiVersion: v2
@@ -40,7 +38,5 @@ entries:
     sources:
     - https://github.com/rommapp/romm
     type: application
-    urls:
-    - https://raw.githubusercontent.com/HenriqZimer/helm-applications/main/romm-1.0.0.tgz
     version: 1.0.0
 generated: "2026-01-13T16:30:22.564100657Z"
