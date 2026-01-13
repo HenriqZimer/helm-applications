@@ -2,7 +2,7 @@ apiVersion: v2
 name: meu-site
 description: A Helm chart for Meu Site - Personal website application
 type: application
-version: 1.0.4
+version: 1.0.0
 appVersion: "1.0.0"
 icon: https://example.com/icon.png
 keywords:
