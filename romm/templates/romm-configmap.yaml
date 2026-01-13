@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.romm.config.name | default "romm-config-file" }}
   labels:
-    {{- include "app.labels" (dict "name" (default "romm-config-file" .Values.romm.config.name) "Values" $.Values "Release" $.Release) | nindent 4 }}
+    {{- include "romm.labels" (dict "Chart" $.Chart "Release" $.Release "Values" $.Values) | nindent 4 }}
 data:
   config.yml: |
 {{ .Values.romm.config.data | indent 4 }}
