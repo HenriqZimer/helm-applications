@@ -91,9 +91,22 @@ deployments:
           name: meu-site-database-credentials
     # -- Persistence configuration
     persistence:
+      # -- Enable persistent storage for database
       enabled: false
+      # -- Use existing PVC (leave empty to create new one)
+      existingClaim: ""
+      # -- Mount path inside container
       mountPath: /data/db
+      # -- PVC name (only used when creating new PVC)
       pvcName: meu-site-db-pvc
+      # -- Storage class for dynamic provisioning
+      storageClass: ""
+      # -- Access mode for the PVC
+      accessMode: ReadWriteOnce
+      # -- Size of the persistent volume
+      size: 8Gi
+      # -- Annotations for the PVC
+      annotations: {}
     # -- Resources requests and limits
     resources:
       requests: { cpu: 200m, memory: 256Mi }

@@ -1,0 +1,22 @@
+{{- if and .Values.deployments.database.persistence.enabled (not .Values.deployments.database.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.deployments.database.persistence.pvcName }}
+  labels:
+    {{- include "app.labels" (dict "name" .Values.deployments.database.name "Values" .Values "Release" .Release) | nindent 4 }}
+    app.kubernetes.io/component: database
+  {{- with .Values.deployments.database.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.deployments.database.persistence.accessMode | default "ReadWriteOnce" }}
+  resources:
+    requests:
+      storage: {{ .Values.deployments.database.persistence.size | default "8Gi" }}
+  {{- if .Values.deployments.database.persistence.storageClass }}
+  storageClassName: {{ .Values.deployments.database.persistence.storageClass }}
+  {{- end }}
+{{- end }}

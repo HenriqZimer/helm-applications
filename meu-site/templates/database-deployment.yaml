@@ -60,5 +60,9 @@ spec:
       volumes:
         - name: storage
           persistentVolumeClaim:
+            {{- if .Values.deployments.database.persistence.existingClaim }}
+            claimName: {{ .Values.deployments.database.persistence.existingClaim }}
+            {{- else }}
             claimName: {{ .Values.deployments.database.persistence.pvcName }}
+            {{- end }}
       {{- end }}
