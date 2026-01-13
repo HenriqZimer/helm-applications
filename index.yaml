@@ -3,7 +3,7 @@ entries:
   meu-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-01-13T19:25:08.983224061Z"
+    created: "2026-01-13T19:26:38.437820859Z"
     description: A Helm chart for Meu Site - Personal website application
     digest: 0ef47166f9378d5198bb9497b0bf775559593f86d18ec38e12933f6e12ed8400
     home: https://github.com/HenriqZimer/k8s
@@ -24,9 +24,9 @@ entries:
   romm:
   - apiVersion: v2
     appVersion: 4.5.0
-    created: "2026-01-13T19:25:08.9846814Z"
+    created: "2026-01-13T19:26:38.439027284Z"
     description: A Helm chart for RomM - Beautiful, powerful, self-hosted ROM manager
-    digest: 3f48fbafc5e2d76e404b2cbf45dc321f03fb726b3a6787d2403af2069c4cb713
+    digest: 63c85b83258d36a8a4b65f7252bea9e1ca7957c2d87c509a6632e3535baf6b85
     home: https://romm.app/
     icon: https://romm.app/images/blocks/logos/romm-light.svg
     keywords:
@@ -43,4 +43,4 @@ entries:
     urls:
     - romm-1.0.0.tgz
     version: 1.0.0
-generated: "2026-01-13T19:25:08.982113343Z"
+generated: "2026-01-13T19:26:38.436683953Z"
