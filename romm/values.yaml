@@ -54,9 +54,9 @@ secrets:
     DB_NAME: "romm"
     # Database credentials (MariaDB) - MUST match DB_* values above
     MYSQL_ROOT_PASSWORD: "SuperSecretRootPassword456!"
-    MYSQL_DATABASE: "romm"  # Must equal DB_NAME
-    MYSQL_USER: "romm"      # Must equal DB_USER
-    MYSQL_PASSWORD: "SuperSecretDBPassword123!"  # Must equal DB_PASSWD
+    MYSQL_DATABASE: "romm" # Must equal DB_NAME
+    MYSQL_USER: "romm" # Must equal DB_USER
+    MYSQL_PASSWORD: "SuperSecretDBPassword123!" # Must equal DB_PASSWD
     # RomM authentication - CHANGE THIS!
     ROMM_AUTH_SECRET_KEY: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6"
     # API Keys for metadata providers (get them from respective websites)
@@ -103,8 +103,8 @@ romm:
 
   # -- Ingress configuration.
   ingress:
-    enabled: true
-    className: "nginx"
+    enabled: false
+    className: ""
     annotations:
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
@@ -113,7 +113,8 @@ romm:
         paths:
           - path: /
             pathType: Prefix
-    tls: []
+    tls:
+      []
       # - secretName: romm-tls
       #   hosts:
       #     - romm.example.com
@@ -123,7 +124,7 @@ romm:
     # -- Configuration data (database connection, API keys, etc)
     config:
       # -- set to false to use emptyDir
-      enabled: true
+      enabled: false
       # -- Type of volume (pvc, hostPath, emptyDir)
       type: pvc
       # -- Path on the host node, only used if type is 'hostPath'
@@ -137,11 +138,11 @@ romm:
       storageClass: ""
       # -- Use an existing PVC for this mount
       existingClaim: ""
-    
+
     # -- ROM library storage
     library:
       # -- set to false to use emptyDir
-      enabled: true
+      enabled: false
       # -- Type of volume (pvc, hostPath, emptyDir)
       type: pvc
       # -- Path on the host node, only used if type is 'hostPath'
@@ -157,11 +158,11 @@ romm:
       storageClass: ""
       # -- Use an existing PVC for this mount
       existingClaim: ""
-    
+
     # -- Resources (cover images, screenshots, etc)
     resources:
       # -- set to false to use emptyDir
-      enabled: true
+      enabled: false
       # -- Type of volume (pvc, hostPath, emptyDir)
       type: pvc
       # -- Path on the host node, only used if type is 'hostPath'
@@ -175,11 +176,11 @@ romm:
       storageClass: ""
       # -- Use an existing PVC for this mount
       existingClaim: ""
-    
+
     # -- Assets (EmulatorJS files, etc)
     assets:
       # -- set to false to use emptyDir
-      enabled: true
+      enabled: false
       # -- Type of volume (pvc, hostPath, emptyDir)
       type: pvc
       # -- Path on the host node, only used if type is 'hostPath'
@@ -196,19 +197,17 @@ romm:
 
   # -- Additional environment variables for the container.
   # Example:
-  # env:
+  env: []
   #   - name: TZ
   #     value: "America/Sao_Paulo"
-  env: []
-  
+
   # -- Load environment variables from ConfigMap or Secret.
   # Example for ExternalSecrets (set secrets.enabled: false):
-  # envFrom:
+  envFrom: []
   #   - secretRef:
   #       name: romm-credentials
   #   - secretRef:
   #       name: romm-database-credentials
-  envFrom: []
 
   # -- RomM Configuration File (config.yml)
   # This ConfigMap creates a config.yml file that will be mounted at /romm/config/config.yml
@@ -218,7 +217,8 @@ romm:
   config:
     enabled: false # Set to true to use custom configuration
     name: romm-config-file
-    data: ""
+    data:
+      ""
       # When enabled, paste your complete config.yml content here as a multiline string
       # Example:
       # data: |
@@ -237,16 +237,13 @@ romm:
 mariadb:
   # -- Enable MariaDB deployment
   enabled: true
-  # -- Secret name for MariaDB credentials (used when secrets.enabled=true)
-  # When secrets.enabled=false, it uses 'romm-database-credentials' from ExternalSecret
-  secretName: romm-database-credentials
-  
+
   # -- Container image configuration
   image:
     repository: docker.io/mariadb
     tag: "11"
     pullPolicy: IfNotPresent
-  
+
   # -- Resources requests and limits for MariaDB container
   resources:
     requests:
@@ -255,24 +252,24 @@ mariadb:
     limits:
       cpu: 500m
       memory: 1Gi
-  
+
   # -- Service configuration
   service:
     type: ClusterIP
     port: 3306
-  
+
   # -- Additional environment variables for MariaDB
   env: []
-  
+
   # -- Environment variables from secrets/configmaps for MariaDB
   # This is where database credentials should be loaded from
   envFrom: []
     # - secretRef:
     #     name: romm-database-credentials
-  
+
   # -- Database persistence
   persistence:
-    enabled: true
+    enabled: false
     type: pvc
     hostPath: ""
     accessMode: ReadWriteOnce
