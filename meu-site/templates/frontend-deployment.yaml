@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployments.frontend.name }}
+  labels:
+    {{- include "app.labels" (dict "name" .Values.deployments.frontend.name "Values" .Values "Release" .Release) | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: {{ .Values.deployments.frontend.replicas | default 1 }}
+  {{- if .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: {{ .Values.deployments.frontend.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deployments.frontend.name }}
+        app.kubernetes.io/component: frontend
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Values.deployments.frontend.name }}
+          {{- $repo := .Values.deployments.frontend.image.repository }}
+          {{- if contains "/" $repo }}
+          image: "{{ $repo }}:{{ .Values.deployments.frontend.image.tag | default "latest" }}"
+          {{- else }}
+          image: "{{ .Values.global.registry }}/{{ .Values.global.project }}/{{ $repo }}:{{ .Values.deployments.frontend.image.tag | default "latest" }}"
+          {{- end }}
+          imagePullPolicy: {{ .Values.global.pullPolicy | default "Always" }}
+          ports:
+            {{- range .Values.deployments.frontend.ports }}
+            - containerPort: {{ .containerPort }}
+              protocol: {{ .protocol | default "TCP" }}
+            {{- end }}
+          {{- with .Values.deployments.frontend.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}

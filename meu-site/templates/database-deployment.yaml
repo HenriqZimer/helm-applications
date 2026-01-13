@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployments.database.name }}
+  labels:
+    {{- include "app.labels" (dict "name" .Values.deployments.database.name "Values" .Values "Release" .Release) | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  replicas: {{ .Values.deployments.database.replicas | default 1 }}
+  {{- if .Values.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  {{- end }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Values.deployments.database.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deployments.database.name }}
+        app.kubernetes.io/component: database
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Values.deployments.database.name }}
+          {{- $repo := .Values.deployments.database.image.repository }}
+          {{- if contains "/" $repo }}
+          image: "{{ $repo }}:{{ .Values.deployments.database.image.tag | default "latest" }}"
+          {{- else }}
+          image: "{{ .Values.global.registry }}/{{ .Values.global.project }}/{{ $repo }}:{{ .Values.deployments.database.image.tag | default "latest" }}"
+          {{- end }}
+          imagePullPolicy: {{ .Values.global.pullPolicy | default "Always" }}
+          {{- if .Values.deployments.database.args }}
+          args:
+            {{- toYaml .Values.deployments.database.args | nindent 12 }}
+          {{- end }}
+          ports:
+            {{- range .Values.deployments.database.ports }}
+            - containerPort: {{ .containerPort }}
+              protocol: {{ .protocol | default "TCP" }}
+            {{- end }}
+          {{- if .Values.deployments.database.envFrom }}
+          envFrom:
+            {{- toYaml .Values.deployments.database.envFrom | nindent 12 }}
+          {{- end }}
+          {{- if and .Values.deployments.database.persistence .Values.deployments.database.persistence.enabled }}
+          volumeMounts:
+            - name: storage
+              mountPath: {{ .Values.deployments.database.persistence.mountPath }}
+          {{- end }}
+          {{- with .Values.deployments.database.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- if and .Values.deployments.database.persistence .Values.deployments.database.persistence.enabled }}
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.deployments.database.persistence.pvcName }}
+      {{- end }}

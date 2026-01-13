@@ -3,7 +3,27 @@ entries:
   meu-site:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-01-13T14:30:05.599644523Z"
+    created: "2026-01-13T14:33:01.134329153Z"
+    description: A Helm chart for Meu Site - Personal website application
+    digest: 8e0c0b164e29253b24638badb584c92cdc8eaa4526a0e1e8653339e0c76b452c
+    home: https://github.com/HenriqZimer/k8s
+    icon: https://example.com/icon.png
+    keywords:
+    - website
+    - personal-site
+    - portfolio
+    maintainers:
+    - name: henriqzimer
+    name: meu-site
+    sources:
+    - https://github.com/HenriqZimer/k8s
+    type: application
+    urls:
+    - meu-site-1.0.3.tgz
+    version: 1.0.3
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-01-13T14:33:01.133301312Z"
     description: A Helm chart for Meu Site - Personal website application
     digest: 2cd341396ac79e9760d00cb03230c51cca01714c852c79786d57413674a12d72
     home: https://github.com/HenriqZimer/k8s
@@ -23,7 +43,7 @@ entries:
     version: 1.0.2
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-01-13T14:30:05.598567521Z"
+    created: "2026-01-13T14:33:01.13235214Z"
     description: A Helm chart for Meu Site - Personal website application
     digest: 579af3f11a0eee85138914dd1ec0bee3525f8e6f808f24c41ca4bbc99adccdac
     home: https://github.com/HenriqZimer/k8s
@@ -43,7 +63,7 @@ entries:
     version: 1.0.1
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2026-01-13T14:30:05.596527555Z"
+    created: "2026-01-13T14:33:01.131357111Z"
     description: A Helm chart for Kubernetes
     digest: 95dc435e0f9acaf5b7a60481270b4bac28ab52f31ac1ded76aa4cb604a54504d
     icon: https://example.com/icon.png
@@ -55,7 +75,7 @@ entries:
   romm:
   - apiVersion: v2
     appVersion: 4.5.0
-    created: "2026-01-13T14:30:05.600944396Z"
+    created: "2026-01-13T14:33:01.135626378Z"
     description: A Helm chart for RomM - Beautiful, powerful, self-hosted ROM manager
     digest: 1df09d49b54fa48f43f00ef90539c5fbe8be8f9b49e005a9733e9f08f0ac14a9
     home: https://romm.app/
@@ -74,4 +94,4 @@ entries:
     urls:
     - romm-1.0.1.tgz
     version: 1.0.1
-generated: "2026-01-13T14:30:05.594871385Z"
+generated: "2026-01-13T14:33:01.1297262Z"
