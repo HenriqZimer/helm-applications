@@ -1,11 +1,11 @@
-{{- if .Values.rommConfig.enabled }}
+{{- if .Values.romm.config.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.rommConfig.name | default "romm-config-file" }}
+  name: {{ .Values.romm.config.name | default "romm-config-file" }}
   labels:
-    {{- include "app.labels" (dict "name" (default "romm-config-file" .Values.rommConfig.name) "Values" $.Values "Release" $.Release) | nindent 4 }}
+    {{- include "app.labels" (dict "name" (default "romm-config-file" .Values.romm.config.name) "Values" $.Values "Release" $.Release) | nindent 4 }}
 data:
   config.yml: |
-{{ .Values.rommConfig.config | indent 4 }}
+{{ .Values.romm.config.data | indent 4 }}
 {{- end }}

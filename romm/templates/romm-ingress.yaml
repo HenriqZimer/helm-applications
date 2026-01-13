@@ -1,4 +1,4 @@
-{{- if .Values.ingress.enabled }}
+{{- if .Values.romm.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -6,17 +6,17 @@ metadata:
   labels:
     {{- include "romm.labels" . | nindent 4 }}
     app.kubernetes.io/component: romm
-  {{- with .Values.ingress.annotations }}
+  {{- with .Values.romm.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if .Values.ingress.className }}
-  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.romm.ingress.className }}
+  ingressClassName: {{ .Values.romm.ingress.className }}
   {{- end }}
-  {{- if .Values.ingress.tls }}
+  {{- if .Values.romm.ingress.tls }}
   tls:
-    {{- range .Values.ingress.tls }}
+    {{- range .Values.romm.ingress.tls }}
     - hosts:
         {{- range .hosts }}
         - {{ . | quote }}
@@ -25,7 +25,7 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
+    {{- range .Values.romm.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
@@ -36,7 +36,7 @@ spec:
               service:
                 name: {{ include "romm.fullname" $ }}
                 port:
-                  number: {{ $.Values.service.port }}
+                  number: {{ $.Values.romm.service.port }}
           {{- end }}
     {{- end }}
 {{- end }}

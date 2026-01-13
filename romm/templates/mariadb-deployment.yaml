@@ -42,14 +42,14 @@ spec:
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ $.Values.secrets.name }}
+                  name: {{ $.Values.mariadb.secretName | default "romm-database-credentials" }}
                   key: {{ $key }}
             {{- end }}
             {{- end }}
           {{- else }}
           envFrom:
             - secretRef:
-                name: romm-database-credentials
+                name: {{ .Values.mariadb.secretName | default "romm-database-credentials" }}
           {{- end }}
           volumeMounts:
             - name: data
