@@ -46,10 +46,20 @@ spec:
                   key: {{ $key }}
             {{- end }}
             {{- end }}
+            {{- with .Values.mariadb.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- else }}
+          {{- with .Values.mariadb.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+          {{- if not .Values.secrets.enabled }}
+          {{- with .Values.mariadb.envFrom }}
           envFrom:
-            - secretRef:
-                name: {{ .Values.mariadb.secretName | default "romm-database-credentials" }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- end }}
           volumeMounts:
             - name: data

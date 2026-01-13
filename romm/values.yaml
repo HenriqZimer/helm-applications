@@ -261,6 +261,15 @@ mariadb:
     type: ClusterIP
     port: 3306
   
+  # -- Additional environment variables for MariaDB
+  env: []
+  
+  # -- Environment variables from secrets/configmaps for MariaDB
+  # This is where database credentials should be loaded from
+  envFrom: []
+    # - secretRef:
+    #     name: romm-database-credentials
+  
   # -- Database persistence
   persistence:
     enabled: true
