@@ -2,7 +2,7 @@ apiVersion: v2
 name: romm
 description: A Helm chart for RomM - Beautiful, powerful, self-hosted ROM manager
 type: application
-version: 1.0.0
+version: 1.0.1
 appVersion: "4.5.0"
 icon: https://romm.app/images/blocks/logos/romm-light.svg
 keywords:
