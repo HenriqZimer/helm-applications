@@ -218,93 +218,20 @@ romm:
   config:
     enabled: false # Set to true to use custom configuration
     name: romm-config-file
-    data: |
-      # Paste your complete config.yml content here
-      # Example configuration:
-      
-      # Exclude specific platforms or ROMs from scanning
-      exclude:
-        platforms:
-          - "ps"      # PlayStation 1
-          - "ngc"     # GameCube
-          - "gba"     # Game Boy Advance
-        roms:
-          single_file:
-            extensions:
-              - "xml"
-              - "txt"
-              - "nfo"
-            names:
-              - "info.txt"
-              - "._*"
-      
-      # Map custom folder names to recognized platforms
-      system:
-        platforms:
-          gc: "ngc"     # Treat 'gc' folder as GameCube
-          psx: "ps"     # Treat 'psx' folder as PlayStation
-        versions:
-          naomi: "arcade"
-      
-      # Filesystem configuration
-      filesystem:
-        roms_folder: "library"  # If your ROMs folder isn't named 'roms'
-        skip_hash_calculation: false  # Set to true for low-power devices (Raspberry Pi)
-      
-      # Scan priorities for metadata and media
-      scan:
-        priority:
-          metadata:     # Metadata provider priority
-            - "igdb"    # Internet Game Database
-            - "moby"    # MobyGames
-            - "ss"      # ScreenScraper
-          artwork:      # Cover art and screenshots priority
-            - "igdb"
-            - "ss"
-            - "moby"
-          region:       # Region preference (ScreenScraper)
-            - "us"      # United States
-            - "eu"      # Europe
-            - "jp"      # Japan
-          language:     # Language preference (ScreenScraper)
-            - "en"      # English
-            - "pt"      # Portuguese
-            - "es"      # Spanish
-        media:          # Media types to download
-          - "box2d"         # Normal box art (always enabled)
-          - "screenshot"    # Screenshots
-          - "manual"        # PDF manuals
-          - "bezel"         # EmulatorJS bezels
-          # - "box3d"       # 3D box art
-          # - "video"       # Gameplay videos (large files!)
-      
-      # EmulatorJS configuration (web-based emulator)
-      emulatorjs:
-        debug: false              # Enable console logging
-        cache_limit: 52428800     # 50 MB cache limit
-        disable_batch_bootup: false  # Set to true if DOS games won't start
-        disable_auto_unload: false   # Set to true to keep emulator running
-        # Online multiplayer (netplay)
-        netplay:
-          enabled: false
-          ice_servers:
-            - urls: "stun:stun.l.google.com:19302"
-            - urls: "stun:stun1.l.google.com:19302"
-        # Core-specific settings
-        settings:
-          parallel_n64:
-            vsync: disable
-          snes9x:
-            snes9x_region: ntsc
-          default:          # Applies to all cores
-            fps: show
-        # Controller mapping
-        # controls:
-        #   snes9x:
-        #     0:  # Player 1
-        #       0:
-        #         value: x          # Keyboard
-        #         value2: BUTTON_2  # Controller
+    data: ""
+      # When enabled, paste your complete config.yml content here as a multiline string
+      # Example:
+      # data: |
+      #   # Your config.yml content here
+      #   exclude:
+      #     platforms:
+      #       - "ps"      # PlayStation 1
+      #   filesystem:
+      #     roms_folder: "library"
+      #   scan:
+      #     priority:
+      #       metadata: ["igdb", "moby", "ss"]
+      #   # See full config at: https://docs.romm.app/latest/Getting-Started/Configuration-File/
 
 # -- MariaDB database configuration
 mariadb:
