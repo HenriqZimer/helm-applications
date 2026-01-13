@@ -1,7 +1,16 @@
 apiVersion: v2
 name: meu-site
-description: A Helm chart for Kubernetes
+description: A Helm chart for Meu Site - Personal website application
 type: application
-version: 1.0.0
+version: 1.0.1
 appVersion: "1.0.0"
 icon: https://example.com/icon.png
+keywords:
+  - website
+  - personal-site
+  - portfolio
+home: https://github.com/HenriqZimer/k8s
+sources:
+  - https://github.com/HenriqZimer/k8s
+maintainers:
+  - name: henriqzimer
