@@ -1,90 +1,142 @@
-# Global configurations
+# -- Global configurations for all resources
 global:
+  # -- Container registry URL (e.g., Harbor, Docker Hub)
   registry: harbor.henriqzimer.com.br
+  # -- Project name in the registry
   project: meu-site
+  # -- Image pull policy (Always, IfNotPresent, or Never)
   pullPolicy: Always
 
-# Common labels applied to all resources
+# -- Common labels applied to all resources
 commonLabels:
   managed-by: helm
   project: meu-site
 
-# Deployments dynamic map
+# -- Number of old ReplicaSets to retain for rollback history
+revisionHistoryLimit: 3
+
+# -- Image pull secrets to authenticate with private repositories
+imagePullSecrets: []
+
+# -- Secrets configuration
+# Two modes supported:
+# 1. Internal secrets (enabled: true) - Chart creates secrets from data below
+# 2. External secrets (enabled: false) - Use ExternalSecrets or pre-created secrets
+secrets:
+  # -- Enable internal secret creation. Set to false to use ExternalSecrets or existing secrets
+  enabled: false
+  # -- Secret name for database credentials
+  name: meu-site-database-credentials
+  # -- Secret data (only used when enabled: true)
+  data:
+    MONGO_INITDB_ROOT_USERNAME: "admin"
+    MONGO_INITDB_ROOT_PASSWORD: "password123"
+    MONGO_INITDB_DATABASE: "meu_site_db"
+    MONGODB_URI: "mongodb://admin:password123@meu-site-database:27017/meu_site_db?authSource=admin"
+
+# -- Deployments dynamic map
 deployments:
+  # -- Frontend deployment configuration
   frontend:
     name: meu-site-frontend
+    # -- Number of frontend replicas
     replicas: 2
+    # -- Container image configuration
     image:
       repository: meu-site-frontend
       tag: v0.0.1
+    # -- Resources requests and limits
     resources:
       requests: { cpu: 300m, memory: 512Mi }
       limits: { cpu: 500m, memory: 1Gi }
+    # -- Container ports
     ports:
       - containerPort: 80
 
+  # -- Backend deployment configuration
   backend:
     name: meu-site-backend
+    # -- Number of backend replicas
     replicas: 1
+    # -- Container image configuration
     image:
       repository: meu-site-backend
       tag: dev-a611e574ba
-    envFromSecret: meu-site-database-credentials
-    envKeys:
-      - MONGODB_URI
+    # -- Environment variables from ExternalSecret/Secret (when secrets.enabled: false)
+    envFrom:
+      - secretRef:
+          name: meu-site-database-credentials
+    # -- Resources requests and limits
     resources:
       requests: { cpu: 150m, memory: 128Mi }
       limits: { cpu: 300m, memory: 256Mi }
+    # -- Container ports
     ports:
       - containerPort: 5000
 
+  # -- Database deployment configuration
   database:
     name: meu-site-database
+    # -- Number of database replicas
     replicas: 1
+    # -- Container image configuration
     image:
       repository: docker.io/mongo
       tag: latest
+    # -- Command arguments for MongoDB
     args: ["--bind_ip", "0.0.0.0"]
-    envFromSecret: meu-site-database-credentials
-    envKeys:
-      - MONGO_INITDB_ROOT_USERNAME
-      - MONGO_INITDB_ROOT_PASSWORD
-      - MONGO_INITDB_DATABASE
+    # -- Environment variables from ExternalSecret/Secret (when secrets.enabled: false)
+    envFrom:
+      - secretRef:
+          name: meu-site-database-credentials
+    # -- Persistence configuration
     persistence:
       enabled: false
       mountPath: /data/db
       pvcName: meu-site-db-pvc
+    # -- Resources requests and limits
     resources:
       requests: { cpu: 200m, memory: 256Mi }
       limits: { cpu: 500m, memory: 512Mi }
+    # -- Container ports
     ports:
       - containerPort: 27017
 
-# Service configuration
+# -- Service configuration
 services:
+  # -- Frontend service
   frontend:
     name: meu-site-frontend
     ports:
       - port: 80
 
+  # -- Backend service
   backend:
     name: meu-site-backend
     ports:
       - port: 5000
 
+  # -- Database service
   database:
     name: meu-site-database
     ports:
       - port: 27017
 
-# Ingress configuration
+# -- Ingress configuration
 ingress:
+  # -- Principal ingress for meu-site
   meu-site-principal:
+    # -- Enable or disable this ingress
     enabled: true
+    # -- Ingress name
     name: meu-site-ingress
+    # -- Ingress class (nginx, traefik, etc.)
     className: nginx
+    # -- Default service name for the ingress
     serviceName: meu-site-frontend
+    # -- TLS secret for HTTPS
     tlsSecret: wildcard-henriqzimer-tls
+    # -- Ingress annotations
     annotations:
       cert-manager.io/cluster-issuer: "letsencrypt-prod"
       nginx.ingress.kubernetes.io/enable-cors: "true"
@@ -92,6 +144,7 @@ ingress:
       nginx.ingress.kubernetes.io/cors-allow-origin: "*"
       nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
       nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # -- Ingress hosts and paths
     hosts:
       - host: henriqzimer.com.br
         paths:
@@ -110,13 +163,3 @@ ingress:
             port: 5000
             pathType: Prefix
             serviceName: meu-site-backend
-
-# Configuração de Secrets (para testes locais/sem Vault)
-secrets:
-  enabled: true
-  name: meu-site-database-credentials
-  data:
-    MONGO_INITDB_ROOT_USERNAME: "admin"
-    MONGO_INITDB_ROOT_PASSWORD: "password123"
-    MONGO_INITDB_DATABASE: "meu_site_db"
-    MONGODB_URI: "mongodb://admin:password123@meu-site-database:27017/meu_site_db?authSource=admin"

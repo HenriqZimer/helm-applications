@@ -59,6 +59,13 @@ spec:
           ports:
             {{- include "app.containerPorts" $val | nindent 12 }}
 
+          {{- /* Support for envFrom (recommended for ExternalSecrets) */ -}}
+          {{- if $val.envFrom }}
+          envFrom:
+            {{- toYaml $val.envFrom | nindent 12 }}
+          {{- end }}
+
+          {{- /* Legacy support for envFromSecret with envKeys */ -}}
           {{- if $val.envFromSecret }}
           env:
             {{- range $val.envKeys }}
