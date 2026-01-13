@@ -54,11 +54,10 @@ spec:
               containerPort: 8080
               protocol: TCP
           env:
+            # DB_HOST is always generated dynamically
             - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secrets.name }}
-                  key: DB_HOST
+              value: {{ printf "%s-db" (include "romm.fullname" .) | quote }}
+            {{- if .Values.secrets.enabled }}
             {{- range $key, $val := .Values.secrets.data }}
             {{- if not (hasPrefix "MYSQL_" $key) }}
             - name: {{ $key }}
@@ -66,6 +65,7 @@ spec:
                 secretKeyRef:
                   name: {{ $.Values.secrets.name }}
                   key: {{ $key }}
+            {{- end }}
             {{- end }}
             {{- end }}
             {{- with .Values.romm.env }}

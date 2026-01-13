@@ -1,5 +1,5 @@
-# Example values for RomM - Use this as a template for your deployment
-# Copy this file to values-production.yaml and customize it for your environment
+# Example values for RomM using ExternalSecrets from Vault
+# This example shows how to use ExternalSecrets instead of internal secret creation
 
 # -- Number of RomM replicas to start. Should be left at 1.
 replicaCount: 1
@@ -7,32 +7,10 @@ replicaCount: 1
 # -- Number of old ReplicaSets to retain for rollback history.
 revisionHistoryLimit: 3
 
-# -- Image pull secrets to authenticate with private repositories.
-imagePullSecrets: []
-
 image:
-  # -- Container image repository for RomM.
   repository: docker.io/rommapp/romm
-  # -- RomM container image tag.
   tag: "4.5.0"
-  # -- Image pull policy (Always, IfNotPresent, or Never).
   pullPolicy: IfNotPresent
-
-# -- Override the default name of the chart.
-nameOverride: ""
-# -- Override the default full name of the chart.
-fullnameOverride: ""
-
-# -- Annotations to add to the pod.
-podAnnotations: {}
-# -- Additional labels to add to the pod.
-podLabels: {}
-
-# -- Security context for the pod.
-podSecurityContext: {}
-
-# -- Security context for the container.
-securityContext: {}
 
 # -- Resources requests and limits for RomM container.
 resources:
@@ -43,284 +21,84 @@ resources:
     cpu: 1000m
     memory: 2Gi
 
-# -- Node selector for pod scheduling.
-nodeSelector: {}
-
-# -- Tolerations for pod scheduling.
-tolerations: []
-
-# -- Affinity rules for pod scheduling.
-affinity: {}
-
-# -- RomM application configuration
-romm:
-  # -- Additional environment variables for the container.
-  # Example:
-  # env:
-  #   - name: TZ
-  #     value: "America/Sao_Paulo"
-  env: []
-  # -- Load environment variables from ConfigMap or Secret.
-  envFrom: []
-
 # -- Service configuration
 service:
-  # -- Service type (ClusterIP, NodePort, or LoadBalancer).
   type: ClusterIP
-  # -- Port for the RomM service.
   port: 8080
-  # -- Name of the port in the service.
-  portName: http
-  # -- Annotations for the service.
-  annotations: {}
-  # -- Labels for the service.
-  labels: {}
 
 # -- Ingress configuration.
 ingress:
   enabled: true
   className: "nginx"
   annotations:
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "512m"
   hosts:
     - host: romm.example.com
       paths:
         - path: /
           pathType: Prefix
-  tls: []
-    # - secretName: romm-tls
-    #   hosts:
-    #     - romm.example.com
+  tls:
+    - secretName: romm-tls
+      hosts:
+        - romm.example.com
 
-# -- Persistence configuration for RomM data
+# -- Persistence configuration - use existing PVCs
 persistence:
-  # -- Configuration data (database connection, API keys, etc)
-  config:
-    # -- set to false to use emptyDir
-    enabled: false
-    # -- Type of volume (pvc, hostPath, emptyDir)
-    type: pvc
-    # -- Path on the host node, only used if type is 'hostPath'
-    hostPath: ""
-    # -- PVC specific settings
-    accessMode: ReadWriteOnce
-    size: 1Gi
-    # -- Custom annotations to be added to the PVC
-    annotations: {}
-    # -- If undefined or set to null, no storageClassName spec is set
-    storageClass: ""
-    # -- Use an existing PVC for this mount
-    existingClaim: ""
-  
-  # -- ROM library storage
   library:
-    # -- set to false to use emptyDir
-    enabled: false
-    # -- Type of volume (pvc, hostPath, emptyDir)
+    enabled: true
     type: pvc
-    # -- Path on the host node, only used if type is 'hostPath'
-    # Example for NFS mount:
-    # hostPath: "/mnt/nfs/roms"
-    hostPath: ""
-    # -- PVC specific settings
-    accessMode: ReadWriteMany
-    size: 100Gi
-    # -- Custom annotations to be added to the PVC
-    annotations: {}
-    # -- If undefined or set to null, no storageClassName spec is set
-    storageClass: ""
-    # -- Use an existing PVC for this mount
-    existingClaim: ""
-  
-  # -- Resources (cover images, screenshots, etc)
+    existingClaim: "romm-library-pvc"
+  config:
+    enabled: true
+    type: pvc
+    existingClaim: "romm-config-pvc"
   resources:
-    # -- set to false to use emptyDir
-    enabled: false
-    # -- Type of volume (pvc, hostPath, emptyDir)
+    enabled: true
     type: pvc
-    # -- Path on the host node, only used if type is 'hostPath'
-    hostPath: ""
-    # -- PVC specific settings
-    accessMode: ReadWriteOnce
-    size: 10Gi
-    # -- Custom annotations to be added to the PVC
-    annotations: {}
-    # -- If undefined or set to null, no storageClassName spec is set
-    storageClass: ""
-    # -- Use an existing PVC for this mount
-    existingClaim: ""
-  
-  # -- Assets (EmulatorJS files, etc)
+    existingClaim: "romm-resources-pvc"
   assets:
-    # -- set to false to use emptyDir
-    enabled: false
-    # -- Type of volume (pvc, hostPath, emptyDir)
+    enabled: true
     type: pvc
-    # -- Path on the host node, only used if type is 'hostPath'
-    hostPath: ""
-    # -- PVC specific settings
-    accessMode: ReadWriteOnce
-    size: 5Gi
-    # -- Custom annotations to be added to the PVC
-    annotations: {}
-    # -- If undefined or set to null, no storageClassName spec is set
-    storageClass: ""
-    # -- Use an existing PVC for this mount
-    existingClaim: ""
+    existingClaim: "romm-assets-pvc"
 
 # -- MariaDB database configuration
 mariadb:
-  # -- Enable MariaDB deployment
   enabled: true
-  image:
-    repository: docker.io/mariadb
-    tag: "11"
-    pullPolicy: IfNotPresent
-  resources:
-    requests:
-      cpu: 300m
-      memory: 512Mi
-    limits:
-      cpu: 500m
-      memory: 1Gi
-  # -- Service configuration
-  service:
-    type: ClusterIP
-    port: 3306
-  # -- Database persistence
   persistence:
-    enabled: false
+    enabled: true
     type: pvc
-    hostPath: ""
-    accessMode: ReadWriteOnce
-    size: 10Gi
-    annotations: {}
-    storageClass: ""
-    existingClaim: ""
+    existingClaim: "romm-db-pvc"
 
-# -- Secrets configuration
-# All secrets (DB and app) are in a single block for simplicity
+# -- Secrets configuration for ExternalSecrets
 secrets:
-  # -- Enable secrets creation
-  enabled: true
-  # -- Secret name
-  name: romm-secrets
-  # -- Secret data - ALL secrets in one place
-  data:
-    # Database connection (DB_HOST will be auto-generated as {release-name}-romm-db)
-    DB_PORT: "3306"
-    DB_USER: "romm"
-    DB_PASSWD: "SuperSecretDBPassword123!"
-    DB_NAME: "romm"
-    # Database credentials (MariaDB)
-    MYSQL_ROOT_PASSWORD: "SuperSecretRootPassword456!"
-    MYSQL_DATABASE: "romm"
-    MYSQL_USER: "romm"
-    MYSQL_PASSWORD: "SuperSecretDBPassword123!"
-    # RomM authentication - CHANGE THIS!
-    ROMM_AUTH_SECRET_KEY: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6"
-    # API Keys for metadata providers (get them from respective websites)
-    # IGDB (https://api.igdb.com/)
-    IGDB_CLIENT_ID: "your_igdb_client_id_here"
-    IGDB_CLIENT_SECRET: "your_igdb_client_secret_here"
-    # SteamGridDB (https://www.steamgriddb.com/profile/preferences/api)
-    STEAMGRIDDB_API_KEY: "your_steamgriddb_api_key_here"
-    # MobyGames (https://www.mobygames.com/info/api/)
-    MOBYGAMES_API_KEY: "your_mobygames_api_key_here"
+  # -- DISABLE internal secret creation when using ExternalSecrets
+  enabled: false
+  # -- Secret names (will be created by ExternalSecret controller)
+  name: romm-credentials
+  data: {}
+
+# -- RomM application configuration
+romm:
+  # -- Additional environment variables
+  env:
+    - name: TZ
+      value: "America/Sao_Paulo"
+  
+  # -- Load secrets from ExternalSecrets
+  # The ExternalSecrets must be created separately and will generate these secret names
+  envFrom:
+    # App credentials (ROMM_AUTH_SECRET_KEY, API keys)
+    - secretRef:
+        name: romm-credentials
+    # Database credentials (DB_*, MYSQL_*)
+    - secretRef:
+        name: romm-database-credentials
 
 # -- RomM Configuration File (config.yml)
-# This ConfigMap creates a config.yml file that will be mounted at /romm/config/config.yml
-# Documentation: https://docs.romm.app/latest/Getting-Started/Configuration-File/
-#
-# To use: enable and paste your complete config.yml in the 'config' field below
 rommConfig:
-  enabled: false # Set to true to use custom configuration
+  enabled: false
   name: romm-config-file
   config: |
-    # Paste your complete config.yml content here
-    # Example configuration:
-    
-    # Exclude specific platforms or ROMs from scanning
-    exclude:
-      platforms:
-        - "ps"      # PlayStation 1
-        - "ngc"     # GameCube
-        - "gba"     # Game Boy Advance
-      roms:
-        single_file:
-          extensions:
-            - "xml"
-            - "txt"
-            - "nfo"
-          names:
-            - "info.txt"
-            - "._*"
-    
-    # Map custom folder names to recognized platforms
-    system:
-      platforms:
-        gc: "ngc"     # Treat 'gc' folder as GameCube
-        psx: "ps"     # Treat 'psx' folder as PlayStation
-      versions:
-        naomi: "arcade"
-    
-    # Filesystem configuration
-    filesystem:
-      roms_folder: "library"  # If your ROMs folder isn't named 'roms'
-      skip_hash_calculation: false  # Set to true for low-power devices (Raspberry Pi)
-    
-    # Scan priorities for metadata and media
-    scan:
-      priority:
-        metadata:     # Metadata provider priority
-          - "igdb"    # Internet Game Database
-          - "moby"    # MobyGames
-          - "ss"      # ScreenScraper
-        artwork:      # Cover art and screenshots priority
-          - "igdb"
-          - "ss"
-          - "moby"
-        region:       # Region preference (ScreenScraper)
-          - "us"      # United States
-          - "eu"      # Europe
-          - "jp"      # Japan
-        language:     # Language preference (ScreenScraper)
-          - "en"      # English
-          - "pt"      # Portuguese
-          - "es"      # Spanish
-      media:          # Media types to download
-        - "box2d"         # Normal box art (always enabled)
-        - "screenshot"    # Screenshots
-        - "manual"        # PDF manuals
-        - "bezel"         # EmulatorJS bezels
-        # - "box3d"       # 3D box art
-        # - "video"       # Gameplay videos (large files!)
-    
-    # EmulatorJS configuration (web-based emulator)
-    emulatorjs:
-      debug: false              # Enable console logging
-      cache_limit: 52428800     # 50 MB cache limit
-      disable_batch_bootup: false  # Set to true if DOS games won't start
-      disable_auto_unload: false   # Set to true to keep emulator running
-      # Online multiplayer (netplay)
-      netplay:
-        enabled: false
-        ice_servers:
-          - urls: "stun:stun.l.google.com:19302"
-          - urls: "stun:stun1.l.google.com:19302"
-      # Core-specific settings
-      settings:
-        parallel_n64:
-          vsync: disable
-        snes9x:
-          snes9x_region: ntsc
-        default:          # Applies to all cores
-          fps: show
-      # Controller mapping
-      # controls:
-      #   snes9x:
-      #     0:  # Player 1
-      #       0:
-      #         value: x          # Keyboard
-      #         value2: BUTTON_2  # Controller
+    # Your config.yml content here

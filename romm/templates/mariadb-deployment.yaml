@@ -35,6 +35,7 @@ spec:
             - name: mysql
               containerPort: 3306
               protocol: TCP
+          {{- if .Values.secrets.enabled }}
           env:
             {{- range $key, $val := .Values.secrets.data }}
             {{- if hasPrefix "MYSQL_" $key }}
@@ -45,6 +46,11 @@ spec:
                   key: {{ $key }}
             {{- end }}
             {{- end }}
+          {{- else }}
+          envFrom:
+            - secretRef:
+                name: romm-database-credentials
+          {{- end }}
           volumeMounts:
             - name: data
               mountPath: /var/lib/mysql
