@@ -57,9 +57,14 @@ spec:
             # DB_HOST is always generated dynamically
             - name: DB_HOST
               value: {{ printf "%s-db" (include "romm.fullname" .) | quote }}
-            {{- if .Values.secrets.enabled }}
+            {{- with .Values.romm.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- if .Values.secrets.enabled }}
+          # When secrets are enabled, use env with secretKeyRef for RomM-specific secrets only
+          # Database credentials (DB_*) will be provided via romm.envFrom
             {{- range $key, $val := .Values.secrets.data }}
-            {{- if not (hasPrefix "MYSQL_" $key) }}
+            {{- if and (not (hasPrefix "MYSQL_" $key)) (not (hasPrefix "DB_" $key)) }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
@@ -67,10 +72,7 @@ spec:
                   key: {{ $key }}
             {{- end }}
             {{- end }}
-            {{- end }}
-            {{- with .Values.romm.env }}
-            {{- toYaml . | nindent 12 }}
-            {{- end }}
+          {{- end }}
           {{- with .Values.romm.envFrom }}
           envFrom:
             {{- toYaml . | nindent 12 }}
